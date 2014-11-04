@@ -1,9 +1,10 @@
 # depslib dependency file v1.0
-1414808060 source:c:\users\admin\desktop\opencv_learning\learning3\main.cpp
+1414974770 source:c:\users\admin\desktop\opencv_learning\learning3\main.cpp
 	<iostream>
 	<cv.h>
 	<highgui.h>
 	"opencv2/opencv.hpp"
+	<algorithm>
 
 1384335861 c:\opencv\opencv\my_build\install\include\opencv\cv.h
 	"opencv2/core/core_c.h"
