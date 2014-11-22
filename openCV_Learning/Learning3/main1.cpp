@@ -1,6 +1,7 @@
 #include <iostream>
-#include <cv.h>
-#include <highgui.h>
+#include "opencv2/core/core.hpp"
+//#include <cv.h>
+//#include <highgui.h>
 #include "opencv2/opencv.hpp"
 #include <algorithm>
 
@@ -46,7 +47,7 @@ cout<<"Sugandha"<<endl;
     Mat imgNew;
     imgNew=imread("/home/sugandha/RecognitionLocalization/openCV_Learning/Learning3/PR4/New.jpg",1);
     Mat imgNew_out = Mat::zeros( imgNew.size(), CV_8UC3 );
-cout<<"Sugandha printing new image"<<endl;
+    cout<<"Sugandha printing new image"<<endl;
     imshow("New",imgNew);
     warpPerspective(imgNew, imgNew_out, H, imgNew.size(), 1, 1);
     imshow("Warped New", imgNew_out);
@@ -58,7 +59,8 @@ cout<<"Sugandha printing new image"<<endl;
     imshow("GrayScale image",imgGray);
     Mat imgBw;
     //Otsu thresholding operation
-    threshold( imgGray, imgBw, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU );
+    //threshold( imgGray, imgBw, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU );
+    threshold( imgGray, imgBw, 20, 255, CV_THRESH_BINARY);
     imshow("BW image", imgBw);
     Mat imgDilute;
     dilate(imgBw,imgDilute, getStructuringElement(MORPH_ELLIPSE, Size(3,3), Point(-1,-1)));
@@ -79,14 +81,22 @@ cout<<"Sugandha printing new image"<<endl;
         Scalar color( rand()&255, rand()&255, rand()&255 );
         drawContours( dst, contours, idx, color, CV_FILLED, 8, hierarchy );
     }
+    vector<double> areas;
+   // Mat1d size_mat(1, areas.size());
+   // memcpy(size_mat.data,areas.data(),areas.size()*sizeof(float));
+    Mat1i ind;
     int num=contours.size();
     //cout<<"Number of contours is"<< contours.size()<<endl;
     //cout<<"Max element is"<<max_element(contours,contours)<<endl;
     for(int i=0;i<num;i++)
     {
-     cout << "Contour area is" << contourArea(contours[i])<<endl ;
+        areas.push_back(contourArea(contours[i]));
+    cout << "Contour area is" << contourArea(contours[i])<<endl ;
     }
-
+Mat1d size_mat(1, areas.size());
+ memcpy(size_mat.data,areas.data(),areas.size()*sizeof(float));
+cv::sortIdx(size_mat, ind, CV_SORT_EVERY_ROW | CV_SORT_DESCENDING);
+cout<<"Indices of two biggest areas"<<endl<<ind(0,0)<<endl<<ind(0,1)<<endl;
     namedWindow( "Components", 1 );
     imshow( "Components", dst );
     cout<<"Bounding Rectangles"<<endl;
@@ -105,18 +115,18 @@ cout<<"Sugandha printing new image"<<endl;
        //cout<<boundRect[i].tl().x<<"\t"<<boundRect[i].br().x<<endl;
        cout<<centroids.at(i)<<endl;
      }
-cout<<"Bounding Rectangles ended"<<endl;
+     cout<<"Bounding Rectangles ended"<<endl;
      Mat drawing = Mat::zeros( dst.size(), CV_8UC3 );
-  for( int i = 0; i< contours.size(); i++ )
-     {
-       Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-       drawContours( drawing, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
-       rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
-       circle(drawing, centroids.at(i),2.0,color,-1,8,0);
-     }
+     for( int i = 0; i<2; i++ )
+        {
+            Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+            drawContours( drawing, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+            rectangle( drawing, boundRect[ind(0,i)].tl(), boundRect[ind(0,i)].br(), color, 2, 8, 0 );
+            circle(drawing, centroids.at(ind(0,i)),2.0,color,-1,8,0);
+        }
 
      namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
-  imshow( "Contours", drawing );
+     imshow( "Contours", drawing );
 
     waitKey();
     return 0;
