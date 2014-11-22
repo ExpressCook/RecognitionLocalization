@@ -1,0 +1,35 @@
+%  p1=[];
+%  p2=[];
+H2to1=computeH(p1,p2);
+out_size=[160 120];
+img=uint8(zeros(160,120,3));
+img1=warpH(img, H2to1, out_size, 0);
+% vid=videoinput('winvideo',1,'MJPG_160x120');
+% imgNew=getsnapshot(vid);
+imgNew1=warpH(imgNew, H2to1, out_size,0);
+%img=imread('Original.jpg');
+%imgNew=imread('New.jpg');
+imgChange=imgNew1-img1;
+imgGray=rgb2gray(imgChange);
+% imgGray=imgGray+40;
+imgBw=im2bw(imgGray,graythresh(imgGray));
+%0.01;
+%0.08
+imgBw=im2bw(imgGray,0.01);
+imgErode=imerode(imgBw,strel('disk',3));
+LB = 100;
+IL = bwlabel(imgErode);
+R = regionprops(imgErode,'Area');
+ind = find([R.Area] >= LB);
+Iout = ismember(IL,ind);
+figure,imshow(Iout);
+C=regionprops(imgErode,'Centroid');
+%C=regionprops(Iout,'Centroid');
+center=C(ind(1),:).Centroid
+% se=serial('COM8','BaudRate',9600);
+% fopen(se);
+% strX=strcat('xa',num2str(center(1)*4),'$');
+% strY=strcat('ya',num2str(center(2)*4),'$');
+% fwrite(se,strX);
+% fwrite(se,strY);
+% fclose(se);
