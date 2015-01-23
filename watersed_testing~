@@ -1,0 +1,16 @@
+i=imread('/home/sugandha/Desktop/apple10.jpg');
+gray=rgb2gray(i);
+se=strel('disk',20);
+
+hy = fspecial('sobel');
+hx = hy';
+Iy = imfilter(double(I), hy, 'replicate');
+Ix = imfilter(double(I), hx, 'replicate');
+gradmag = sqrt(Ix.^2 + Iy.^2);
+figure,imshow(gradmag)
+
+% Performing opening using imerode and imdilate functions
+i_open=imopen(i,se);
+figure,imshow(i_open)
+
+%Performing opening using 
