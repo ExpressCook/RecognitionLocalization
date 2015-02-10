@@ -3,23 +3,25 @@ clear all
 clc
 
 % i=imread('./AppleDatabase/apple15.jpg');
-i=imread('/home/sugandha/Downloads/img2.png');
+i=imread('/home/sugandha/Downloads/img1.png');
+figure, imshow(i)
 gray=rgb2gray(i);
 figure,imshow(gray)
 se=strel('disk',20);
 
-hy = fspecial('sobel');
+hy = fspecial('log',[9 9], 0.9);
+%log worked pretty well
 hx = hy';
 Iy = imfilter(double(gray), hy, 'replicate');
 Ix = imfilter(double(gray), hx, 'replicate');
 gradmag = sqrt(Ix.^2 + Iy.^2);
 figure,imshow(gradmag)
 
-% Performing opening and closing using imerode and imdilate functions
-i_open=imopen(gray,se);
-figure,imshow(i_open)
-i_close=imclose(i_open,se);
-figure, imshow(i_close)
+% % % Performing opening and closing using imerode and imdilate functions
+% % i_open=imopen(gray,se);
+% % figure,imshow(i_open)
+% % i_close=imclose(i_open,se);
+% % figure, imshow(i_close)
 
 %Performing opening by reconstruction
 i_erode=imerode(gray,se);
@@ -60,6 +62,7 @@ figure, imshow(bw)
 %Computing watershed transform of distance transform of bw and looking for
 %ridge lines (DL==0)
 D = bwdist(bw);
+figure,imshow(D)
 DL = watershed(D);
 bgm = DL == 0;
 figure, imshow(bgm)
@@ -73,6 +76,14 @@ I4 = i;
 I4(imdilate(L == 0, ones(3, 3)) | bgm | fgm4) = 255;
 figure, imshow(I4)
 
-Lrgb = label2rgb(L, 'jet', 'w', 'shuffle');
+Lrgb = label2rgb(L, 'hsv', 'w', 'noshuffle');
 figure, imshow(Lrgb)
 
+% %Converting the segmented img to bw to extract bounding boxes
+% img_segmented=rgb2gray(Lrgb);
+% img_segmented=im2bw(img_segmented,graythresh(img_segmented));
+% 
+% IL = bwlabel(img_segmented);
+R = regionprops(L,'Area');
+area=cat(1,R.Area);
+[areaSorted,ind]=sort(area,'descend')
